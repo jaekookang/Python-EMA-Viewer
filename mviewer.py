@@ -1,9 +1,6 @@
 '''
 mviewer
 
-TODO:
-- [ ] Provide support for data compression (bz2)
-
 2020-12-31 first created
 '''
 import os

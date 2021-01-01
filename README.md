@@ -5,34 +5,41 @@ This repository includes a Python-based procedure for the following tasks:
 - [x] 2) Convert from `.pkl` back to MVIEW-compatible `.mat`.
 - [x] 3) Visualize articulatory trajectories with the corresponding waveform.
 
-Note that this procedure is based on Haskins IEEE rate comparison dataset ([Link](https://yale.app.box.com/s/cfn8hj2puveo65fq54rp1ml2mk7moj3h)). The compatibility with other EMA data format from different machines (AG500, AG501) or OS (Windows) yet. You may need to configure xx for your own.
+Note that this procedure is based on Haskins IEEE rate comparison dataset ([Link](https://yale.app.box.com/s/cfn8hj2puveo65fq54rp1ml2mk7moj3h)). The compatibility with other EMA data format from different machines (AG500, AG501) or OS (Windows) has not been test yet. You may need to configure `mviewer.py` for your own.
 
 ## How to
 - Convert `.mat` to `.pkl`
 ```python
->> from mviewer import Viewer
->> mm = Viewer()
->> mm.load('example/F01_B01_S01_F01_N.mat') # load .mat file
->> mm.mat2py(save_file='example/F01_B01_S01_F01_N.pkl') # convert .mat to .pkl & save as .mat file
-
+from mviewer import Viewer
+mm = Viewer()
+mm.load('example/F01_B01_S01_F01_N.mat') # load .mat file
+mm.mat2py(save_file='example/F01_B01_S01_F01_N.pkl') # convert .mat to .pkl & save as .mat file
 ```
-TODO: Add a screenshot of mview --> python
 
 - Convert `.pkl` to `.mat`
 ```python
->> f = open('example/F01_B01_S01_F01_N.pkl', 'rb') # load .pkl file
->> data = pickle.load(f); f.close()
->> from mviewer import Viewer
->> mm = Viewer()
->> mm.py2mat('example/F01_B01_S01_F01_N_new.mat', data, save=True) # convert .pkl to .mat & save as .pkl file
+f = open('example/F01_B01_S01_F01_N.pkl', 'rb') # load .pkl file
+data = pickle.load(f); f.close()
+from mviewer import Viewer
+mm = Viewer()
+mm.py2mat('example/F01_B01_S01_F01_N_new.mat', data, save=True) # convert .pkl to .mat & save as .pkl file
 ```
 
 - Visualize
 ```python
->> mm.plot(channel_list=['AUDIO','TR', 'TB', 'TT'], show=True)
+from mviewer import Viewer
+mm = Viewer()
+mm.load('example/F01_B01_S01_F01_N.mat') # load .mat file
+mm.mat2py(save_file='example/F01_B01_S01_F01_N.pkl') # convert .mat to .pkl & save as .mat file
+mm.plot(channel_list=['AUDIO','TR', 'TB', 'TT'], show=True)
 ```
-[<img align="left" alt="plot" width="600px" src="https://raw.githubusercontent.com/jaekookang/Python-EMA-Viewer/master/png/test.png" />]
-<br />
+
+<img alt="plot" width="600px" src="https://raw.githubusercontent.com/jaekookang/Python-EMA-Viewer/master/png/test.png" />
+<br><br>
+
+- If you want to specify meta information (channel names or field names in struct), you can do so (See `class Viewer` in `mviwer.py`)
+- If you are now sure about the meta information, you can specify `ignore_meta=True` when intiaiting `class Viewer`.
+
 
 ## Requirements
 - This procedure was tested on macOS (xx) as of 2020-12-31
@@ -60,6 +67,7 @@ seaborn==0.11.0
 - [ ] Support for XRMB
 - [ ] Support for mngu0
 - [ ] Support for MOCHA-TIMIT
+- [ ] Provide support for data compression (bz2)
 
 ## Acknowledgements
 - The example files in `example` folder (i.e., `F01_B01_S01_R01_N.mat` and `M01_B01_S01_R01_N.mat`) were retrieved from the original data repository ([Link](https://yale.app.box.com/s/cfn8hj2puveo65fq54rp1ml2mk7moj3h)) without any modifications only for demonstration (version 3 of the GNU General Public License).
