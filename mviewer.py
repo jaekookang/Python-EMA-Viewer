@@ -4,6 +4,7 @@ mviewer
 2020-12-31 first created
 '''
 import os
+import tgt
 import pickle
 import numpy as np
 from scipy.io import loadmat, savemat
@@ -26,6 +27,21 @@ def load_pkl(file_name):
     assert isinstance(pkl, dict), 'pickle data is not python-dictionary'
     assert len(pkl.keys()) > 0, 'there is no valid keys in data'
     return pkl
+
+
+def load_textgrid(file_name, tier_name='phone'):
+    '''Load textgrid & return times and labels'''
+    tg = tgt.read_textgrid(file_name)
+    tier = tg.get_tier_by_name(tier_name)
+
+    times = []
+    labels = []
+    for t in tier:
+        times.append([round(t.start_time,4), round(t.end_time,4)])
+        labels.append(t.text)
+    assert len(times) > 0, f'"times" is empty: len={len(times)}'
+    assert len(labels) > 0, f'"{tier_name}" is empty: len={len(labels)}'
+    return np.array(times, dtype='float32'), labels    
 
 
 def check_dictionary(dt, field_names, channel_names, audio_channel):
@@ -62,8 +78,9 @@ def get_struct(mat, field_names=None, channel_names=None, audio_channel=None, ig
     mat_dict = {ch:'' for ch in channel_names}
     for ch, m in zip(channel_names, mat):
         fields = {}
-        for j, fd in enumerate(field_names):
-            data = m[j]
+        for fd in field_names:
+            i = _field_names.index(fd)
+            data = m[i]
             if fd in ['SRATE']:
                 data = float(data[0][0])
             elif fd in ['SIGNAL']:
@@ -101,7 +118,7 @@ def get_struct(mat, field_names=None, channel_names=None, audio_channel=None, ig
 class Viewer:
     def __init__(self,
                  field_names=['NAME', 'SRATE', 'SIGNAL', 'SOURCE', 'SENTENCE', 'WORDS', 'PHONES', 'LABELS'],
-                 channel_names=['TR', 'TB', 'TT','UL', 'LL', 'ML', 'JAW', 'JAWL'],
+                 channel_names=['TR', 'TB', 'TT','UL', 'LL', 'JAW', 'JAWL'],
                  audio_channel='AUDIO',
                  ignore_meta=False,
                  wav_sr=44100,
@@ -150,6 +167,52 @@ class Viewer:
         else:
             raise 'Check the file extensions. Choose either .mat or .pkl'
         print('Loaded')
+
+    @staticmethod
+    def update_meta(dictionary, file_name, phn_tier='phone', wrd_tier='word',
+                    field_names=['NAME', 'SRATE', 'SIGNAL', 'SOURCE', 'SENTENCE', 'WORDS', 'PHONES', 'LABELS'], 
+                    channel_names=['TR', 'TB', 'TT','UL', 'LL', 'JAW', 'JAWL'], 
+                    audio_channel='AUDIO'):
+        '''Update WORDS PHONES LABELS from the updated textgrid file
+        - If you have corrected the TextGrid file, you need to run this 
+          to update the dictionary
+        '''
+        check_dictionary(dictionary, field_names, channel_names, audio_channel)
+
+        phn_times, phns = load_textgrid(tgd_file, tier_name='phone')
+        wrd_times, wrds = load_textgrid(tgd_file, tier_name='word')
+
+        dictionary[audio_channel]['WORDS']['LABEL'] = wrds
+        dictionary[audio_channel]['WORDS']['OFFS'] = wrd_times
+        dictionary[audio_channel]['PHONES']['LABEL'] = phns
+        dictionary[audio_channel]['PHONES']['OFFS'] = phn_times
+
+        dictionary[audio_channel]['LABELS']['NAME'] = wrds
+        dictionary[audio_channel]['LABELS']['OFFSET'] = wrd_times[:,[0]] * 1000 # sec => msec
+        dictionary[audio_channel]['LABELS']['VALUE'] = wrd_times[:,[1]] * 1000 - wrd_times[:,[0]] * 1000
+        return dictionary
+
+    @staticmethod
+    def update_audio(dictionary, file_name, 
+                     field_names=['NAME', 'SRATE', 'SIGNAL', 'SOURCE', 'SENTENCE', 'WORDS', 'PHONES', 'LABELS'], 
+                     channel_names=['TR', 'TB', 'TT','UL', 'LL', 'JAW', 'JAWL'], 
+                     audio_channel='AUDIO'):
+        '''Update AUDIO in the dictionary 
+        - if the recorded speech signal was updated,
+          for example, noise reduction or amplitude normalization might have applied,
+          you need to run this
+        '''
+        assert os.path.exists(file_name), f'wav file {file_name} does not exist'
+        check_dictionary(dictionary, field_names, channel_names, audio_channel)
+        
+        sr, sig = wavfile.read(file_name)
+        assert len(dictionary['AUDIO']['SIGNAL']) == len(sig), \
+            f'Sample length differs {len(dictionary["AUDIO"]["SIGNAL"])} =\= {len(sig)}'
+        assert dictionary['AUDIO']['SRATE'] == sr, \
+            f'Sampling rate differs {dictionary["AUDIO"]["SRATE"]} =\= {sr}'
+        dictionary['AUDIO']['SIGNAL'] = sig
+
+        return dictionary
 
     def mat2py(self, data=None, save_file=None):
         '''Convert matlab mat to python dict
