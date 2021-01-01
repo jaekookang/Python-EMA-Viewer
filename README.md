@@ -31,7 +31,8 @@ TODO: Add a screenshot of mview --> python
 ```python
 >> mm.plot(channel_list=['AUDIO','TR', 'TB', 'TT'], show=True)
 ```
-[<img align="left" alt="plot" width="200px" src="https://raw.githubusercontent.com/jaekookang/Python-EMA-Viewer/master/png/test.png" />]
+[<img align="left" alt="plot" width="600px" src="https://raw.githubusercontent.com/jaekookang/Python-EMA-Viewer/master/png/test.png" />]
+<br />
 
 ## Requirements
 - This procedure was tested on macOS (xx) as of 2020-12-31
@@ -40,11 +41,11 @@ TODO: Add a screenshot of mview --> python
 Haskins IEEE dataset
 
 # Python
-python
-numpy
-scipy
-matplotlib
-seaborn
+python==3.7.4
+numpy==1.18.5
+scipy==1.4.1
+matplotlib==3.3.3
+seaborn==0.11.0
 
 # Matlab
 (optional) mview
@@ -61,7 +62,7 @@ seaborn
 - [ ] Support for MOCHA-TIMIT
 
 ## Acknowledgements
-- The example files in `example` folder (i.e., `F01_B01_S01_R01_N.mat` and `M01_B01_S01_R01_N.mat`) were retrieved from the original data repository ([Link](https://yale.app.box.com/s/cfn8hj2puveo65fq54rp1ml2mk7moj3h)) without any modifications (version 3 of the GNU General Public License).
+- The example files in `example` folder (i.e., `F01_B01_S01_R01_N.mat` and `M01_B01_S01_R01_N.mat`) were retrieved from the original data repository ([Link](https://yale.app.box.com/s/cfn8hj2puveo65fq54rp1ml2mk7moj3h)) without any modifications only for demonstration (version 3 of the GNU General Public License).
 
 ## History
 - 2020-12-31: first created
