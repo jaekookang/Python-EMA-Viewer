@@ -14,6 +14,17 @@ from mviewer import Viewer
 mm = Viewer()
 mm.load('example/F01_B01_S01_F01_N.mat') # load .mat file
 mm.mat2py(save_file='example/F01_B01_S01_F01_N.pkl') # convert .mat to .pkl & save as .mat file
+
+pprint(mm.data)
+{'AUDIO': {...},
+ 'JAW': {...},
+ 'JAWL': {...},
+ 'LL': {...},
+ 'ML': {...},
+ 'TB': {...},
+ 'TR': {...},
+ 'TT': {...},
+ 'UL': {...}}
 ```
 
 - Convert `.pkl` to `.mat`
