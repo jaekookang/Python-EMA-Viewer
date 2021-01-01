@@ -66,7 +66,7 @@ matplotlib==3.3.3
 seaborn==0.11.0
 
 # Matlab
-(optional) mview
+(optional) mview (developed by Mark Tiede @ Haskins Labs)
 
 # Misc
 (optional) ffmpeg
