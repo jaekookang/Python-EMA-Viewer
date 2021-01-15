@@ -10,6 +10,7 @@ import numpy as np
 from scipy.io import loadmat, savemat
 import matplotlib.pyplot as plt
 import seaborn as sns
+from scipy.io import wavfile
 
 def load_mat(file_name):
     '''Load .mat file'''
@@ -74,6 +75,11 @@ def get_struct(mat, field_names=None, channel_names=None, audio_channel=None, ig
              f'Given channel_names does not match with data\nGiven:{[audio_channel]+channel_names} <==>\n Data:{_channel_names}'
         channel_names = [audio_channel] + channel_names
     
+    # Reorganize mat based on channel_names
+    # to prevent unwanted sensors to added (eg. ML)
+    mat = [m for m in mat if m[0][0] in channel_names]
+    assert len(mat) == len(channel_names), f'no. of channel names do not match with the data'
+
     # Build dictionary
     mat_dict = {ch:'' for ch in channel_names}
     for ch, m in zip(channel_names, mat):
@@ -118,7 +124,7 @@ def get_struct(mat, field_names=None, channel_names=None, audio_channel=None, ig
 class Viewer:
     def __init__(self,
                  field_names=['NAME', 'SRATE', 'SIGNAL', 'SOURCE', 'SENTENCE', 'WORDS', 'PHONES', 'LABELS'],
-                 channel_names=['TR', 'TB', 'TT','UL', 'LL', 'JAW', 'JAWL'],
+                 channel_names=['TR', 'TB', 'TT', 'UL', 'LL', 'JAW'],
                  audio_channel='AUDIO',
                  ignore_meta=False,
                  wav_sr=44100,
@@ -169,9 +175,9 @@ class Viewer:
         print('Loaded')
 
     @staticmethod
-    def update_meta(dictionary, file_name, phn_tier='phone', wrd_tier='word',
+    def update_meta(dictionary, tgd_file, phn_tier='phone', wrd_tier='word',
                     field_names=['NAME', 'SRATE', 'SIGNAL', 'SOURCE', 'SENTENCE', 'WORDS', 'PHONES', 'LABELS'], 
-                    channel_names=['TR', 'TB', 'TT','UL', 'LL', 'JAW', 'JAWL'], 
+                    channel_names=['TR', 'TB', 'TT','UL', 'LL', 'JAW'], 
                     audio_channel='AUDIO'):
         '''Update WORDS PHONES LABELS from the updated textgrid file
         - If you have corrected the TextGrid file, you need to run this 
@@ -195,7 +201,7 @@ class Viewer:
     @staticmethod
     def update_audio(dictionary, file_name, 
                      field_names=['NAME', 'SRATE', 'SIGNAL', 'SOURCE', 'SENTENCE', 'WORDS', 'PHONES', 'LABELS'], 
-                     channel_names=['TR', 'TB', 'TT','UL', 'LL', 'JAW', 'JAWL'], 
+                     channel_names=['TR', 'TB', 'TT', 'UL', 'LL', 'JAW'], 
                      audio_channel='AUDIO'):
         '''Update AUDIO in the dictionary 
         - if the recorded speech signal was updated,
@@ -358,7 +364,6 @@ class Viewer:
         - File extension has to be 'mov'.
         '''
         from shutil import which
-        from scipy.io import wavfile
         import matplotlib.animation as animation
         if which('ffmpeg') is None:
             raise 'ffmpeg is not installed. Install ffmpeg to generate an animation.'
@@ -409,8 +414,10 @@ if __name__ == '__main__':
     mm.load(file_name)
     # Convert to python dictionary
     mm.mat2py(save_file='test.pkl')
+    # Convert back to mat file
+    mm.py2mat('test.mat', mm.data)
     # Visualize
-    mm.plot(channel_list=['AUDIO','TR', 'TB', 'TT'], show=False, file_name='test.png')
+    mm.plot(channel_list=['AUDIO','TR', 'TB', 'TT','JAW','UL','LL'], show=False, file_name='test.png')
     # Animate
     # mm.animate('test.mov', channel_list=['AUDIO','TR', 'TB', 'TT'])
     print('done')
