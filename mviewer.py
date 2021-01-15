@@ -172,7 +172,6 @@ class Viewer:
             self.data_orig = data
         else:
             raise 'Check the file extensions. Choose either .mat or .pkl'
-        print('Loaded')
 
     @staticmethod
     def update_meta(dictionary, tgd_file, phn_tier='phone', wrd_tier='word',
