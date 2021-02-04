@@ -4,7 +4,4 @@ __pycache__
 launch.json
 settings.json
 .vscode
-test.mov
-test.pkl
-test.mat
 tmp/*

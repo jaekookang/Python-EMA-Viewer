@@ -170,6 +170,7 @@ class Viewer:
             self.loaded_data_type = 'pkl'
             data = load_pkl(file_name)
             self.data_orig = data
+            self.data = data
         else:
             raise 'Check the file extensions. Choose either .mat or .pkl'
 
@@ -363,17 +364,20 @@ class Viewer:
         - File extension has to be 'mov'.
         '''
         from shutil import which
+        from tqdm.auto import tqdm
         import matplotlib.animation as animation
         if which('ffmpeg') is None:
             raise 'ffmpeg is not installed. Install ffmpeg to generate an animation.'
-        sr = self.data['AUDIO']['SRATE']
-        sr_sensor = self.data['TT']['SRATE']
+        sr_wav = self.data['AUDIO']['SRATE']
+        sr_ema = self.data['TT']['SRATE']
         sig = self.data['AUDIO']['SIGNAL']
         n_sig = len(sig)
         div = 1000
-        fps = sr/div
+        fps = sr_wav/div
 
-        wavfile.write('tmp.wav', int(sr), sig)
+        tmp_wav = os.path.join(os.path.dirname(file_name), 'tmp.wav')
+        tmp_mp4 = os.path.join(os.path.dirname(file_name), 'tmp.mp4')
+        wavfile.write(tmp_wav, int(sr_wav), sig)
 
         fig, axs= self.plot(channel_list=channel_list, coordinates=coordinates, show=False)
         Writer = animation.writers['ffmpeg']
@@ -385,23 +389,25 @@ class Viewer:
             lines.update({ch: line})
 
         def update(i, data, lines):
-            # for line in lines:
             for key in lines.keys():
                 if key == 'AUDIO':
                     lines[key].set_data([i*div, i*div], [-1, 1])
                 else:
-                    pad = int(div/fps * sr_sensor/div)
-                    lines[key].set_data([i*pad, i*pad], [-1, 1])
+                    t = (i*div)/sr_wav
+                    s = round(sr_ema * t)
+                    # pad = int(div/fps * sr_ema/div)
+                    # lines[key].set_data([i*pad, i*pad], [-1, 1])
+                    lines[key].set_data([s, s], [-60, 60])
             return list(lines.values())
 
         anim = animation.FuncAnimation(fig, update, frames=int(n_sig/div)+1, fargs=([], lines), blit=True)
         # Write animation
-        anim.save(os.path.join(os.path.dirname(file_name), 'tmp.mp4'), writer=writer)
+        anim.save(tmp_mp4, writer=writer)
         # Combine with audio
-        os.system(f'ffmpeg -i tmp.mp4 -i tmp.wav -c:v copy -c:a copy {file_name} -y')
+        os.system(f'ffmpeg -i {tmp_mp4} -i {tmp_wav} -c:v copy -c:a copy {file_name} -y')
         # Clean up
-        os.remove('tmp.mp4')
-        os.remove('tmp.wav')
+        os.remove(tmp_mp4)
+        os.remove(tmp_wav)
 
 
 if __name__ == '__main__':
@@ -412,11 +418,11 @@ if __name__ == '__main__':
     # Load .mat file
     mm.load(file_name)
     # Convert to python dictionary
-    mm.mat2py(save_file='test.pkl')
+    mm.mat2py(save_file='example/test.pkl')
     # Convert back to mat file
-    mm.py2mat('test.mat', mm.data)
+    mm.py2mat('example/test.mat', mm.data)
     # Visualize
-    mm.plot(channel_list=['AUDIO','TR', 'TB', 'TT','JAW','UL','LL'], show=False, file_name='test.png')
+    mm.plot(channel_list=['AUDIO','TR', 'TB', 'TT','JAW','UL','LL'], show=False, file_name='result/test.png')
     # Animate
-    # mm.animate('test.mov', channel_list=['AUDIO','TR', 'TB', 'TT'])
+    mm.animate('result/test.mov', channel_list=['AUDIO','TR', 'TB', 'TT'])
     print('done')

@@ -50,7 +50,7 @@ mm.mat2py(save_file='example/F01_B01_S01_F01_N.pkl') # convert .mat to .pkl & sa
 mm.plot(channel_list=['AUDIO','TR', 'TB', 'TT'], show=True)
 ```
 
-<img alt="plot" width="600px" src="https://raw.githubusercontent.com/jaekookang/Python-EMA-Viewer/master/png/test.png" />
+<img alt="plot" width="600px" src="https://raw.githubusercontent.com/jaekookang/Python-EMA-Viewer/master/result/test.png" />
 <br><br>
 
 - (4) Update meta information (phone/word labels and time info in TextGrids)
@@ -188,7 +188,7 @@ tgt==1.4.4
 
 ## TODOs
 - [x] Support for IEEE
-- [ ] Fix `.animate()` method
+- [x] Fix `.animate()` method
 - [ ] Support for XRMB
 - [ ] Support for mngu0
 - [ ] Support for MOCHA-TIMIT
