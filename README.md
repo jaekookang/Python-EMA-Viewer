@@ -50,7 +50,7 @@ mm.mat2py(save_file='example/F01_B01_S01_F01_N.pkl') # convert .mat to .pkl & sa
 mm.plot(channel_list=['AUDIO','TR', 'TB', 'TT'], show=True)
 ```
 
-<img alt="plot" width="600px" src="https://raw.githubusercontent.com/jaekookang/Python-EMA-Viewer/master/result/test.png" />
+<img alt="plot" width="600px" src="https://raw.githubusercontent.com/jaekookang/Python-EMA-Viewer/master/result/F01_B01_S01_R01_N.png" />
 <br><br>
 
 - (4) Update meta information (phone/word labels and time info in TextGrids)
