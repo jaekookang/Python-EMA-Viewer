@@ -220,7 +220,7 @@ class Viewer:
 
         return dictionary
 
-    def mat2py(self, data=None, save_file=None):
+    def mat2py(self, data: dict=None, save_file: str=None):
         '''Convert matlab mat to python dict
         - The output `data` is a dictionary with channel names as keys
           and field names as subkeys

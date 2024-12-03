@@ -5,3 +5,4 @@ launch.json
 settings.json
 .vscode
 tmp/*
+test
