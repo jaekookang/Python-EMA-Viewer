@@ -12,6 +12,7 @@ build/
 # Virtual environments
 venv/
 .env/
+.venv/
 
 # IDE / Editor
 .vscode/
